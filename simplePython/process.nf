@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 data_ch = Channel.value( 5 )
+file_ch = Channel.fromPath( "../data/dat*" )
 
 process someMaths {
     input:
@@ -20,4 +21,21 @@ process someMaths {
     """
 }
 
+process otherMath {
+    input:
+    val path from file_ch
+
+    output:
+    stdout into pythonOutput
+
+    script:
+    """
+    #!/usr/bin/env python3
+
+    f = open("$path", 'r')
+    print(f.read())
+    """
+}
+
 result.view{ it.trim() }
+pythonOutput.view { it.trim() }
