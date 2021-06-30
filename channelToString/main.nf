@@ -11,11 +11,13 @@ process printFiles {
         val files
 
     output:
-        val files, emit: files
+        stdout emit: filesString
     
     script:
         """
-        #!/bin/bash
+        #!/usr/bin/env python3
+
+        print('$files'.replace('[', '').replace(']', '').replace(',', ''))
         """    
 }
 
@@ -24,11 +26,11 @@ process printFiles {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    files = Channel.fromPath("files/*.txt").collect()
+    files = Channel.fromPath("./files/*txt").collect()
 
     main:
         printFiles(files)
-        printFiles.out.files.view()
+        printFiles.out.filesString.view()
 }
 
 // ----------------------------------------------------------------------------------------
