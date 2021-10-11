@@ -6,3 +6,6 @@ do
     rm -rf ${D}/.nextflow*
     rm -rf ${D}/work
 done
+
+rm -rf .nextflow*
+rm -rf work

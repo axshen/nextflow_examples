@@ -1,52 +1,57 @@
-#!/usr/bin/env nextflow 
+nextflow.enable.dsl=2
 
-nextflow.enable.dsl = 2
+constant = 'const'
 
-process generateFiles {
-    input:
-        val number
+process first_p {
+  echo true
 
-    output:
-        stdout emit: stdout
-    
-    script:
-        """
-        #!/usr/bin/env python3
+  input:
+    val constant
+    val input1
+    val input2
 
-        import time
+  output:
+    val 1, emit: output1
 
-        number = int($number)
-        for i in range(number):
-            filename = f"/Users/she393/Downloads/file_{i}.txt"
-            f = open(filename, 'w')
-            f.write('lol ')
-            f.close()
-
-        time.sleep(5)
-        """
+  script:
+  """
+    rm -f /tmp/*.txt
+    echo first $input1 $input2 $constant
+    touch /tmp/1.txt
+    touch /tmp/2.txt
+    touch /tmp/3.txt
+  """
 }
 
-process readFile {
-    input:
-        val generate
-        path file
-    
-    output:
-        stdout emit: stdout
+process second_p {
 
-    script:
-        """
-        #!/bin/bash
+  input:
+    val input1
 
-        cat $file
-        """
+  output:
+    val test, emit: output1
+
+  exec:
+    test = file("/tmp/*.txt")
 }
+
+process third_p {
+  echo true
+
+  input:
+    val input1
+
+  output:
+
+  script:
+  """
+    echo third $input1
+  """
+}
+
 
 workflow {
-    number = Channel.value(5)
-
-    main:
-        generateFiles(number)
-        readFile(generateFiles.out.stdout, Channel.fromPath("/Users/she393/Downloads/*.txt"))
-        readFile.out.stdout.view()
+  first_p(constant, 1, 2)
+  second_p(first_p.out.output1)
+  third_p(second_p.out.output1.flatten())
 }
